@@ -1,12 +1,6 @@
-def mutate_array(array=[]):
-    array.append(4)
-    return array
-
-
 def main():
-    array = [0, 1, 2]
-    mutate_array(array)
-    print(array)
+    print_stuff = lambda: print("im printing")
+    print_stuff()
 
 
 if __name__ == "__main__":
