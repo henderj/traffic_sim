@@ -1,7 +1,7 @@
 #:kivy 2.0.0
 
 <Agent>:
-    size: 50, 50
+    size: 10, 10
     canvas:
         Ellipse:
             pos: self.pos
@@ -10,8 +10,3 @@
 <Game>:
     Agent:
         pos: self.parent.center
-    Label:
-        font_size: 70
-        center_x: root.width / 2
-        top: root.top - 50
-        text: "this is a test"
