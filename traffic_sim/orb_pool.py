@@ -9,7 +9,7 @@ class OrbPool(DrawableInterface, TickableInterface, PoolInterface[Orb]):
     active_orbs: list[Orb] = []
     pool: list[Orb] = []
     starting_pos = vector.obj(x=500, y=250)
-    spawn_rate = 500
+    spawn_rate = 100
     last_spawn_tick = 0
 
     def spawn(self) -> Orb:
