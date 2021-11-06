@@ -17,7 +17,7 @@ class OrbPool(DrawableInterface, TickableInterface, PoolInterface[Orb]):
             self.grow_pool(5)
         orb = self.pool.pop()
         orb.init(self.starting_pos, 10, self)
-        orb.set_target()
+        orb.set_target(vector.obj(x=200, y=250))
         self.active_orbs.append(orb)
         return orb
 
