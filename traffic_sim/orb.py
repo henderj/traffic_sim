@@ -1,9 +1,5 @@
 from interfaces.interfaces import DrawableInterface, TickableInterface, PoolInterface
-
-# import vector
 from random import randint
-
-# from vector import VectorObject2D
 import pygame
 from pygame import Vector2
 import pytweening as tween

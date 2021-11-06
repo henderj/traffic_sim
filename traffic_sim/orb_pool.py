@@ -2,11 +2,12 @@ import pygame
 from interfaces.interfaces import DrawableInterface, TickableInterface, PoolInterface
 from orb import Orb
 from pygame import Surface, Vector2
+from typing import List
 
 
 class OrbPool(DrawableInterface, TickableInterface, PoolInterface[Orb]):
-    active_orbs: list[Orb] = []
-    pool: list[Orb] = []
+    active_orbs: List[Orb] = []
+    pool: List[Orb] = []
     starting_pos = Vector2(x=500, y=250)
     spawn_rate = 500
     last_spawn_tick = 0

@@ -1,6 +1,6 @@
 import pygame
 from pygame import time
-
+from typing import List
 from interfaces.interfaces import TickableInterface, DrawableInterface
 from orb_pool import OrbPool
 
@@ -17,8 +17,8 @@ class Game:
     carryOn = False
     last_tick = 0
 
-    drawables: list[DrawableInterface] = []
-    tickables: list[TickableInterface] = []
+    drawables: List[DrawableInterface] = []
+    tickables: List[TickableInterface] = []
 
     def run(self):
         pygame.init()
