@@ -30,12 +30,11 @@ class Game:
         clock = pygame.time.Clock()
         self.add_objects()
         while self.carryOn:
-            for event in pygame.event.get():  # User did something
+            for event in pygame.event.get():
                 self.check_for_quit(event)
             dt = self.get_delta_time()
             self.do_logic(dt)
             self.do_draw(screen)
-            # --- Limit to 60 frames per second
             clock.tick(60)
 
         pygame.quit()
