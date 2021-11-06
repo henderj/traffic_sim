@@ -29,7 +29,7 @@ class Orb(DrawableInterface, TickableInterface):
         self.pool = pool
 
     def set_target(self, target: VectorObject2D = None):
-        if target == None:
+        if target is None:
             target = vector.obj(x=randint(0, 700), y=randint(0, 500))
         self.target = target
 
