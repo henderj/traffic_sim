@@ -1,16 +1,7 @@
 import pygame
-from pygame import draw
+from pygame import draw, Surface
 from random import randint
-
-
-class DrawableInterface:
-    def draw(self, screen: pygame.Surface):
-        pass
-
-
-class TickableInterface:
-    def tick(self):
-        pass
+from interfaces import TickableInterface, DrawableInterface
 
 
 class Orb(DrawableInterface, TickableInterface):
@@ -33,6 +24,18 @@ class Orb(DrawableInterface, TickableInterface):
         size = self.size
         draw_pos = (pos[0] - size / 2, pos[1] - size / 2)
         pygame.draw.ellipse(screen, self.COLOR, [draw_pos[0], draw_pos[1], size, size])
+
+
+class OrbPool(DrawableInterface, TickableInterface):
+    orbs: list[Orb] = []
+
+    def tick(self):
+        for o in self.orbs:
+            o.tick()
+
+    def draw(self, screen: Surface):
+        for o in self.orbs:
+            o.draw(screen)
 
 
 class Game:
