@@ -1,4 +1,5 @@
 import pygame
+from pygame import time
 
 from interfaces.interfaces import TickableInterface, DrawableInterface
 import vector
@@ -15,6 +16,7 @@ class Game:
     HEIGHT = 500
 
     carryOn = False
+    last_tick = 0
 
     drawables: list[DrawableInterface] = []
     tickables: list[TickableInterface] = []
@@ -30,13 +32,19 @@ class Game:
         while self.carryOn:
             for event in pygame.event.get():  # User did something
                 self.check_for_quit(event)
-            clock.get_time()
-            self.do_logic()
+            dt = self.get_delta_time()
+            self.do_logic(dt)
             self.do_draw(screen)
             # --- Limit to 60 frames per second
             clock.tick(60)
 
         pygame.quit()
+
+    def get_delta_time(self):
+        current_tick = time.get_ticks()
+        delta_time = current_tick - self.last_tick
+        self.last_tick = current_tick
+        return delta_time
 
     def add_objects(self):
         orb_pool = OrbPool()
@@ -47,9 +55,9 @@ class Game:
         if event.type == pygame.QUIT:  # If user clicked close
             self.carryOn = False  # Flag that we are done so we exit this loop
 
-    def do_logic(self):
+    def do_logic(self, dt: int):
         for t in self.tickables:
-            t.tick()
+            t.tick(dt)
 
     def do_draw(self, screen: pygame.Surface):
         screen.fill(self.BLACK)

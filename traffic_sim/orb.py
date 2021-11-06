@@ -3,20 +3,28 @@ import vector
 from random import randint
 from vector import VectorObject2D
 import pygame
+import pytweening as tween
 
 
 class Orb(DrawableInterface, TickableInterface):
     COLOR = (255, 255, 255)
     TARGET_COLOR = (50, 168, 82)
 
+    starting_pos = vector.obj(x=0, y=0)
     pos = vector.obj(x=0, y=0)
     size = vector.obj(x=10, y=10)
     target = vector.obj(x=200, y=200)
+    progress = 0
+    speed = 2
+
+    target_threshold = 1
 
     pool: PoolInterface
 
     def init(self, pos: vector.VectorObject2D, size: int, pool: PoolInterface):
-        self.pos = pos
+        self.starting_pos = pos
+        self.pos = self.starting_pos
+        self.progress = 0
         self.size = vector.obj(x=size, y=size)
         self.pool = pool
 
@@ -26,12 +34,16 @@ class Orb(DrawableInterface, TickableInterface):
         self.target = target
 
     def is_at_target(self) -> bool:
-        return abs(self.pos.subtract(self.target)) < self.top_speed
+        return self.progress >= self.speed
 
-    def tick(self):
+    def tick(self, dt: int):
+        self.progress += dt / 1000.0
         if self.is_at_target():
             self.pool.despawn(self)
             return None
+        tweened_progress = tween.easeInOutSine(self.progress / self.speed)
+        diff = self.target - self.starting_pos
+        self.pos = diff.scale(tweened_progress) + self.starting_pos
 
     def draw(self, screen: pygame.Surface):
         self.draw_circle(self.pos, self.size, self.COLOR, screen)

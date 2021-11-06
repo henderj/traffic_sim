@@ -29,13 +29,13 @@ class OrbPool(DrawableInterface, TickableInterface, PoolInterface[Orb]):
         for _ in range(amount):
             self.pool.append(Orb())
 
-    def tick(self):
+    def tick(self, dt):
         current_tick = pygame.time.get_ticks()
         if current_tick - self.last_spawn_tick >= self.spawn_rate:
             self.last_spawn_tick = current_tick
             self.spawn()
         for o in self.active_orbs:
-            o.tick()
+            o.tick(dt)
 
     def draw(self, screen: Surface):
         for o in self.active_orbs:

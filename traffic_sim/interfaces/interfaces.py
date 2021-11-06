@@ -8,7 +8,7 @@ class DrawableInterface:
 
 
 class TickableInterface:
-    def tick(self):
+    def tick(self, dt: int):
         pass
 
 
