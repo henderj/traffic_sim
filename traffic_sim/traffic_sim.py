@@ -2,7 +2,6 @@ import pygame
 from pygame import time
 
 from interfaces.interfaces import TickableInterface, DrawableInterface
-import vector
 from orb_pool import OrbPool
 
 

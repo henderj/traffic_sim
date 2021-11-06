@@ -1,15 +1,14 @@
 import pygame
 from interfaces.interfaces import DrawableInterface, TickableInterface, PoolInterface
-import vector
 from orb import Orb
-from pygame import Surface
+from pygame import Surface, Vector2
 
 
 class OrbPool(DrawableInterface, TickableInterface, PoolInterface[Orb]):
     active_orbs: list[Orb] = []
     pool: list[Orb] = []
-    starting_pos = vector.obj(x=500, y=250)
-    spawn_rate = 100
+    starting_pos = Vector2(x=500, y=250)
+    spawn_rate = 500
     last_spawn_tick = 0
 
     def spawn(self) -> Orb:
@@ -17,7 +16,7 @@ class OrbPool(DrawableInterface, TickableInterface, PoolInterface[Orb]):
             self.grow_pool(5)
         orb = self.pool.pop()
         orb.init(self.starting_pos, 10, self)
-        orb.set_target(vector.obj(x=200, y=250))
+        orb.set_target(Vector2(x=200, y=250))
         self.active_orbs.append(orb)
         return orb
 
@@ -31,7 +30,11 @@ class OrbPool(DrawableInterface, TickableInterface, PoolInterface[Orb]):
 
     def tick(self, dt):
         current_tick = pygame.time.get_ticks()
-        if current_tick - self.last_spawn_tick >= self.spawn_rate:
+        if (
+            # len(self.active_orbs) <= 0
+            current_tick - self.last_spawn_tick
+            >= self.spawn_rate
+        ):
             self.last_spawn_tick = current_tick
             self.spawn()
         for o in self.active_orbs:
