@@ -1,7 +1,6 @@
 import pygame
 from pygame import time
 from typing import List
-from interfaces.interfaces import TickableInterface, DrawableInterface
 from orb_pool import OrbPool
 
 
@@ -17,8 +16,7 @@ class Game:
     carryOn = False
     last_tick = 0
 
-    drawables: List[DrawableInterface] = []
-    tickables: List[TickableInterface] = []
+    sprites: List[pygame.sprite.Sprite] = []
 
     def run(self):
         pygame.init()
@@ -46,29 +44,30 @@ class Game:
 
     def add_objects(self):
         orb_pool = OrbPool()
-        self.drawables.append(orb_pool)
-        self.tickables.append(orb_pool)
+        self.sprites.append(orb_pool)
+
+    def add_sprite(self, sprite):
+        self.sprites.append(sprite)
+
+    def remove_sprite(self, sprite):
+        self.sprites.remove(sprite)
 
     def check_for_quit(self, event):
         if event.type == pygame.QUIT:  # If user clicked close
             self.carryOn = False  # Flag that we are done so we exit this loop
 
     def do_logic(self, dt: int):
-        for t in self.tickables:
-            t.tick(dt)
+        for s in self.sprites:
+            s.update(dt)
 
     def do_draw(self, screen: pygame.Surface):
         screen.fill(self.BLACK)
-        # pygame.draw.rect(screen, RED, [55, 200, 100, 70], 0)
-        # pygame.draw.line(screen, GREEN, [0, 0], [100, 100], 5)
-        # pygame.draw.ellipse(
-        #     screen, self.WHITE, [size[0] / 2 - 5, size[1] / 2 - 5, 10, 10]
-        # )
-        for d in self.drawables:
-            d.draw(screen)
-        # --- Go ahead and update the screen with what we've drawn.
+        for s in self.sprites:
+            screen.blit(s.surf, s.rect)
         pygame.display.flip()
 
 
 if __name__ == "__main__":
-    Game().run()
+    global GAME
+    GAME = Game()
+    GAME.run()

@@ -1,12 +1,11 @@
-from interfaces.interfaces import DrawableInterface, TickableInterface, PoolInterface
+from interfaces.interfaces import PoolInterface
 from random import randint
 import pygame
 from pygame import Vector2
-import pytweening as tween
-from helper_methods import normalize
+from pygame.sprite import AbstractGroup
 
 
-class Orb(DrawableInterface, TickableInterface):
+class Orb(pygame.sprite.Sprite):
     COLOR = (255, 255, 255)
     TARGET_COLOR = (50, 168, 82)
     V_ZERO = Vector2(0, 0)
@@ -24,10 +23,14 @@ class Orb(DrawableInterface, TickableInterface):
 
     target_threshold = 5
     slow_down_point = 20
+    active = False
 
     pool: PoolInterface
 
     def init(self, pos: Vector2, size: int, pool: PoolInterface):
+        self.surf = pygame.Surface((size, size))
+        pygame.draw.ellipse(self.surf, self.COLOR, [pos.x, pos.y, size.x, size.y])
+        self.rect = self.surf.get_rect()
         self.starting_pos = pos
         self.pos = self.starting_pos
         self.progress = 0
@@ -50,6 +53,10 @@ class Orb(DrawableInterface, TickableInterface):
     def dir_to_target(self) -> Vector2:
         return Vector2(self.target - self.pos).normalize()
 
+    def update(self, *args: any, **kwargs: any) -> None:
+        if self.active:
+            self.tick(args[0])
+
     def tick(self, dt: int):
         # self.progress += dt / 1000.0
         if self.is_at_target():
@@ -71,6 +78,7 @@ class Orb(DrawableInterface, TickableInterface):
         interp_veloctiy = target_dir.magnitude() * 5
         target_pos = self.pos + (target_dir.normalize() * interp_veloctiy * (dt / 1000))
         self.pos = self.pos.lerp(target_pos, 0.25)
+        self.rect.center = self.pos
 
         #  interpVelocity = targetDirection.magnitude * 5f;
 
