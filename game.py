@@ -150,7 +150,6 @@ class Game:
 
     def run(self):
         pygame.init()
-        self.data = self.getInitialData()
         self.setUp()
         self.gameLoop()
         pygame.quit()
@@ -159,6 +158,7 @@ class Game:
         self.screen = pygame.display.set_mode(size=self.SIZE)
         pygame.display.set_caption("Traffic Sim")
         self.clock = Clock()
+        self.data = self.getInitialData()
         self.setUpMap()
         self.all_sprites.add(self.tile_sprites)
         car1 = Car.build(
@@ -235,7 +235,25 @@ class Game:
 
     @staticmethod
     def getInitialData():
-        data = SimData()
+        entities = {
+            1: {
+                "active": True,
+                "current_node": 0,
+                "next_node": 1,
+                "progress_to_next_node": 0.34,
+                "target_node": 3,
+                "path": [1, 2, 0],
+                "speed": 1,
+            }
+        }
+        nav_network = {
+            0: {"pos": (3, 0), "neighbors": [2]},
+            1: {"pos": (0, 3), "neighbors": [2]},
+            2: {"pos": (3, 3), "neighbors": [0, 1, 3, 4]},
+            3: {"pos": (6, 3), "neighbors": [2]},
+            4: {"pos": (3, 6), "neighbors": [2]},
+        }
+        data = SimData(nav_network, entities, [], {})
         return data
 
 
