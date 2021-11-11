@@ -8,4 +8,10 @@ class SimData:
 class TrafficSim:
     @staticmethod
     def tick(data: SimData) -> SimData:
-        pass
+        return data
+        newData = SimData()
+        newData.nav_network = data.nav_network
+        newData.entities = data.entities
+        newData.tiles = data.tiles
+        newData.meta_data = data.meta_data
+        return newData
