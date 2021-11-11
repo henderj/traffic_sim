@@ -6,6 +6,7 @@ from pygame import surface
 from pygame.sprite import AbstractGroup, Group
 from pygame.surface import Surface
 from pygame.time import Clock
+from typing import Any
 
 from traffic_sim.traffic_sim import SimData, TrafficSim
 
@@ -25,6 +26,12 @@ class Tile(sprite.Sprite):
 class Car(sprite.Sprite):
     def init(self, image: Surface, pos):
         self.image = image
+        self.rect = self.image.get_rect(center=pos)
+
+    def update(self, data: SimData) -> None:
+        e_data = data.entities[0]
+        pos = data.nav_network[e_data["current_node_index"]]["pos"]
+        pos = ((pos[0] * 64) + 32, (pos[1] * 64) + 20)
         self.rect = self.image.get_rect(center=pos)
 
     @staticmethod
@@ -147,6 +154,7 @@ class Game:
 
     data: SimData
     running: bool
+    last_tick: int = 0
 
     def run(self):
         pygame.init()
@@ -218,8 +226,10 @@ class Game:
     def gameLoop(self):
         while self.running:
             self.clock.tick(self.FPS)
+            deltaTime = self.clock.get_time() - self.last_tick
+            self.last_tick = self.clock.get_time()
             self.checkEvents()
-            self.data = TrafficSim.tick(self.data)
+            self.data = TrafficSim.tick(self.data, deltaTime)
             self.all_sprites.update(self.data)
             self.render()
 
@@ -235,24 +245,24 @@ class Game:
 
     @staticmethod
     def getInitialData():
-        entities = {
-            1: {
+        entities = [
+            {
                 "active": True,
-                "current_node": 0,
-                "next_node": 1,
+                "current_node_index": 0,
+                "next_node_index": 1,
                 "progress_to_next_node": 0.34,
-                "target_node": 3,
+                "target_node": 0,
                 "path": [1, 2, 0],
                 "speed": 1,
             }
-        }
-        nav_network = {
-            0: {"pos": (3, 0), "neighbors": [2]},
-            1: {"pos": (0, 3), "neighbors": [2]},
-            2: {"pos": (3, 3), "neighbors": [0, 1, 3, 4]},
-            3: {"pos": (6, 3), "neighbors": [2]},
-            4: {"pos": (3, 6), "neighbors": [2]},
-        }
+        ]
+        nav_network = [
+            {"pos": (3, 0), "neighbors": [2]},
+            {"pos": (0, 3), "neighbors": [2]},
+            {"pos": (3, 3), "neighbors": [0, 1, 3, 4]},
+            {"pos": (6, 3), "neighbors": [2]},
+            {"pos": (3, 6), "neighbors": [2]},
+        ]
         data = SimData(nav_network, entities, [], {})
         return data
 
