@@ -6,7 +6,7 @@ import math
 import astar
 
 
-class SimpleGraph:
+class PointGraph:
     def __init__(self, edges: Dict[Point, List[Point]] = {}) -> None:
         self.edges = edges
 
@@ -17,6 +17,11 @@ class SimpleGraph:
         (x1, y1) = pos1
         (x2, y2) = pos2
         return abs(x1 - x2) + abs(y1 - y2)
+
+    def addPoint(self, point: Point, neighbors: List[Point]) -> PointGraph:
+        newEdge = {point: neighbors}
+        newEdges = {**self.edges, **newEdge}
+        return PointGraph(newEdges)
 
 
 class Entity:
@@ -80,7 +85,7 @@ class Entity:
 
 @dataclass
 class SimData:
-    nav_network: SimpleGraph  # node tree or something
+    nav_network: PointGraph  # node tree or something
     entities: List[Entity]  # array of entities (growable, active/inactive entities)
     tiles: List[List[int]]  # 2d array of tiles, will almost never change
     meta_data: dict  # some game properties (speed, size, etc.), will almost never change
@@ -90,7 +95,7 @@ def getInitialData():
     entities: List[Entity] = []
     entities.append(Entity(pos=Point(0, 3), active=True))
 
-    nav_network = SimpleGraph()
+    nav_network = PointGraph()
     nav_network.edges = {
         Point(3, 0): [Point(3, 3)],
         Point(0, 3): [Point(3, 3)],
@@ -101,22 +106,19 @@ def getInitialData():
     return SimData(nav_network, entities, [], {})
 
 
-def findPath(start: Point, end: Point, nav_network: SimpleGraph) -> List[int]:
+def findPath(start: Point, end: Point, graph: PointGraph) -> List[int]:
     return list(
         astar.find_path(
             start=start,
             goal=end,
-            neighbors_fnct=nav_network.neighbors,
-            heuristic_cost_estimate_fnct=nav_network.dist,
-            distance_between_fnct=nav_network.dist,
+            neighbors_fnct=graph.neighbors,
+            heuristic_cost_estimate_fnct=graph.dist,
+            distance_between_fnct=graph.dist,
         )
     )
 
 
-def findEntityPath(pos: Point, end: Point, graph: SimpleGraph) -> List[int]:
-    if pos in graph.edges:
-        return findPath(pos, end, graph)
-
+def findClosestPosInGraph(pos: Point, graph: PointGraph) -> Point:
     closest = Point(math.inf, math.inf)
     closestDist = math.inf
     for edge in graph.edges:
@@ -124,17 +126,20 @@ def findEntityPath(pos: Point, end: Point, graph: SimpleGraph) -> List[int]:
         if dist < closestDist:
             closest = edge
             closestDist = dist
-    tempGraph = SimpleGraph(graph.edges)
-    tempGraph.edges[pos] = [closest]
-    return findPath(pos, end, tempGraph)
+    return closest
+
+
+def findEntityPath(pos: Point, end: Point, graph: PointGraph) -> List[int]:
+    if pos in graph.edges:
+        return findPath(pos, end, graph)
+
+    closest = findClosestPosInGraph(pos, graph)
+    return findPath(pos, end, graph.addPoint(pos, [closest]))
 
 
 def updateEntities(data: SimData, deltaTime: int):
-    def findPathCallback(pos, end):
-        return findEntityPath(pos, end, data.nav_network)
-
     for e in data.entities:
-        e.update(findPathCallback, deltaTime)
+        e.update(lambda pos, end: findEntityPath(pos, end, data.nav_network), deltaTime)
     return data.entities
 
 
@@ -142,5 +147,4 @@ class TrafficSim:
     @staticmethod
     def tick(data: SimData, delta_time: int) -> SimData:
         data.entities = updateEntities(data, delta_time)
-
         return data
