@@ -6,7 +6,7 @@ from pygame.sprite import AbstractGroup, Group
 from pygame.surface import Surface
 from pygame.time import Clock
 
-from traffic_sim.traffic_sim import SimData, TrafficSim, getInitialData
+from traffic_sim.traffic_sim import Point, SimData, TrafficSim, getInitialData
 
 
 class Tile(sprite.Sprite):
@@ -29,7 +29,7 @@ class Car(sprite.Sprite):
     def update(self, data: SimData) -> None:
         e = data.entities[0]
         pos = e.tilePos()
-        pos = ((pos[0] * 64) + 32, (pos[1] * 64) + 20)
+        pos = Point((pos.x * 64) + 32, (pos.y * 64) + 20)
         self.rect = self.image.get_rect(center=pos)
 
     @staticmethod
