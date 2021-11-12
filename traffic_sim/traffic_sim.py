@@ -151,9 +151,6 @@ def updateEntities(data: SimData, deltaTime: int):
 class TrafficSim:
     @staticmethod
     def tick(data: SimData, delta_time: int) -> SimData:
-        nav_network = data.nav_network
-        entities = updateEntities(data, delta_time)
-        tiles = data.tiles
-        meta_data = data.meta_data
+        data.entities = updateEntities(data, delta_time)
 
-        return SimData(nav_network, entities, tiles, meta_data)
+        return data
