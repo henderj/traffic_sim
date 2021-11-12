@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import Dict, List
-from game_types import Point
+from .game_types import Point
 
 import math
 import astar
