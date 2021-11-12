@@ -2,11 +2,9 @@ import os
 import pygame
 from pygame import Color, Vector2
 from pygame import sprite
-from pygame import surface
 from pygame.sprite import AbstractGroup, Group
 from pygame.surface import Surface
 from pygame.time import Clock
-from typing import Any
 
 from traffic_sim.traffic_sim import SimData, TrafficSim, getInitialData
 
