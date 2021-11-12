@@ -1,78 +1,151 @@
-from typing import List
 from dataclasses import dataclass
+from typing import Dict, List, Protocol, TypeVar
+from collections import namedtuple
+
+import math
 import astar
+
+Location = TypeVar("Location")
+
+
+class Graph(Protocol):
+    def neighbors(self, id: Location) -> List[Location]:
+        pass
+
+
+Point = namedtuple("Point", ["x", "y"])
+
+
+class SimpleGraph:
+    def __init__(self, edges: Dict[Point, List[Point]] = {}) -> None:
+        self.edges = edges
+
+    def neighbors(self, pos: Point) -> List[Point]:
+        return self.edges[pos]
+
+    def dist(self, pos1: Point, pos2: Point) -> float:
+        (x1, y1) = pos1
+        (x2, y2) = pos2
+        return abs(x1 - x2) + abs(y1 - y2)
+
+
+class Entity:
+    active: bool
+    path: List[Point]
+    current_path_index: int
+    progress_to_next_node: int
+    target_node: Point
+    speed: float
+    pos: Point
+
+    def __init__(
+        self,
+        speed=1,
+        active=False,
+        pos: Point = Point(0, 0),
+        path: List[Point] = [],
+        current_path_index=0,
+        progress_to_next_node=0,
+        target_node=None,
+    ) -> None:
+        self.speed = speed
+        self.active = active
+        self.pos = pos
+        self.path = path
+        self.current_path_index = current_path_index
+        self.progress_to_next_node = progress_to_next_node
+        self.target_node = target_node
+
+    def hasPath(self):
+        return len(self.path) > 0
+
+    def tilePos(self):
+        return Point(math.floor(self.pos.x), math.floor(self.pos.y))
+
+    def nextPathPos(self):
+        return self.path[self.current_path_index]
+
+    def update(self, findPath, deltaTime: int):
+        if not self.active:
+            return
+
+        if not self.hasPath():
+            start = self.tilePos()
+            end = Point(3, 0)
+            self.path = findPath(start, end)
+
+        if self.progress_to_next_node >= 1:
+            self.current_path_index += 1
+            self.progress_to_next_node = 0
+
+        if self.current_path_index >= len(self.path):
+            self.path = []
+            self.current_path_index = 0
+            return
+
+        self.pos = self.path[self.current_path_index]
+
+        self.progress_to_next_node += self.speed * (deltaTime / 1000)
 
 
 @dataclass
 class SimData:
-    nav_network: List[dict]  # node tree or something
-    entities: List[dict]  # array of entities (growable, active/inactive entities)
+    nav_network: SimpleGraph  # node tree or something
+    entities: List[Entity]  # array of entities (growable, active/inactive entities)
     tiles: List[List[int]]  # 2d array of tiles, will almost never change
     meta_data: dict  # some game properties (speed, size, etc.), will almost never change
 
 
-# entities = [
-#     {
-#         "active": True,
-#         "current_node_index": 0,
-#         "next_node_index": 1,
-#         "progress_to_next_node": 0.34,
-#         "target_node": 0,
-#         "path": [1, 2, 0],
-#         "speed": 1,
-#     }
-# ]
-# nav_network = [
-#     {"pos": (3, 0), "neighbors": [2]},
-#     {"pos": (0, 3), "neighbors": [2]},
-#     {"pos": (3, 3), "neighbors": [0, 1, 3, 4]},
-#     {"pos": (6, 3), "neighbors": [2]},
-#     {"pos": (3, 6), "neighbors": [2]},
-# ]
+def getInitialData():
+    entities: List[Entity] = []
+    entities.append(Entity(pos=Point(0, 3), active=True))
+
+    nav_network = SimpleGraph()
+    nav_network.edges = {
+        Point(3, 0): [Point(3, 3)],
+        Point(0, 3): [Point(3, 3)],
+        Point(3, 3): [Point(3, 0), Point(0, 3), Point(6, 3), Point(3, 6)],
+        Point(6, 3): [Point(3, 3)],
+        Point(3, 6): [Point(3, 3)],
+    }
+    return SimData(nav_network, entities, [], {})
 
 
-def findPath(start, end, nav_network: dict) -> List[int]:
-    def neighbors(node):
-        node["neighbors"]
+def findPath(start: Point, end: Point, nav_network: SimpleGraph) -> List[int]:
+    return list(
+        astar.find_path(
+            start=start,
+            goal=end,
+            neighbors_fnct=nav_network.neighbors,
+            heuristic_cost_estimate_fnct=nav_network.dist,
+            distance_between_fnct=nav_network.dist,
+        )
+    )
 
-    def distance(node1, node2):
-        (x1, y1) = node1["pos"]
-        (x2, y2) = node2["pos"]
-        return abs(x1 - x2) + abs(y1 - y2)
 
-    return astar.find_path(start, end, neighbors, False, distance, distance)
+def findEntityPath(pos: Point, end: Point, graph: SimpleGraph) -> List[int]:
+    if pos in graph.edges:
+        return findPath(pos, end, graph)
+
+    closest = Point(math.inf, math.inf)
+    closestDist = math.inf
+    for edge in graph.edges:
+        dist = graph.dist(pos, edge)
+        if dist < closestDist:
+            closest = edge
+            closestDist = dist
+    tempGraph = SimpleGraph(graph.edges)
+    tempGraph.edges[pos] = [closest]
+    return findPath(pos, end, tempGraph)
 
 
-def updateEntities(data: SimData, deltaTime: int) -> dict:
-    entities = data.entities
-    for e_data in entities:
-        if not e_data["active"]:
-            continue
-        path = e_data["path"]
-        progress = e_data["progress_to_next_node"]
-        current_node_index = e_data["current_node_index"]
-        next_node_index = e_data["next_node_index"]
-        target_node = e_data["target_node"]
-        speed = e_data["speed"]
+def updateEntities(data: SimData, deltaTime: int):
+    def findPathCallback(pos, end):
+        return findEntityPath(pos, end, data.nav_network)
 
-        if len(path) <= 0:
-            nav = data.nav_network
-            start = nav[0]
-            end = nav[1]
-            path = findPath(start, end, nav)
-
-        if progress >= 1:
-            current_node_index += 1
-            next_node_index += 1
-            progress = 0
-
-        progress += speed * (deltaTime / 1000)
-
-        e_data["path"] = path
-        e_data["progress_to_next_node"] = progress
-        e_data["current_node_index"] = current_node_index
-        e_data["next_node_index"] = next_node_index
-    return entities
+    for e in data.entities:
+        e.update(findPathCallback, deltaTime)
+    return data.entities
 
 
 class TrafficSim:
