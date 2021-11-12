@@ -6,7 +6,8 @@ from pygame.sprite import AbstractGroup, Group
 from pygame.surface import Surface
 from pygame.time import Clock
 
-from traffic_sim.traffic_sim import Point, SimData, TrafficSim, getInitialData
+from traffic_sim.traffic_sim import SimData, TrafficSim, getInitialData
+from traffic_sim.game_types import Point
 from utils.spritesheet import SpriteSheet
 
 

@@ -1,19 +1,9 @@
 from dataclasses import dataclass
-from typing import Dict, List, Protocol, TypeVar
-from collections import namedtuple
+from typing import Dict, List
+from game_types import Point
 
 import math
 import astar
-
-Location = TypeVar("Location")
-
-
-class Graph(Protocol):
-    def neighbors(self, id: Location) -> List[Location]:
-        pass
-
-
-Point = namedtuple("Point", ["x", "y"])
 
 
 class SimpleGraph:
