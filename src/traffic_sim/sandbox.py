@@ -1,6 +1,9 @@
 def main():
-    print_stuff = lambda: print("im printing")
-    print_stuff()
+    dict1 = {"hi": "not changed"}
+    dict2 = {**dict1}
+    dict2["hi2"] = "i added something"
+    print(dict1)
+    print(dict2)
 
 
 if __name__ == "__main__":
