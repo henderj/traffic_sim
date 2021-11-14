@@ -1,5 +1,5 @@
 from collections import namedtuple
-from typing import List, Protocol, TypeVar, Dict
+from typing import Iterator, List, Protocol, TypeVar, Dict
 import math, astar
 
 Location = TypeVar("Location")
@@ -23,7 +23,7 @@ class PointGraph:
         (x2, y2) = pos2
         return abs(x1 - x2) + abs(y1 - y2)
 
-    def addPoint(self, point: Point, neighbors: List[Point]) -> PointGraph:
+    def addPoint(self, point: Point, neighbors: List[Point]):
         newEdge = {point: neighbors}
         newEdges = {**self.edges, **newEdge}
         return PointGraph(newEdges)
