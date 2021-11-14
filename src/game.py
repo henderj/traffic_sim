@@ -9,6 +9,7 @@ from pygame.time import Clock
 from traffic_sim.traffic_sim import SimData, TrafficSim, getInitialData
 from traffic_sim.pathfinding import Point
 from utils.spritesheet import SpriteSheet
+import traffic_sim.mapgenerator as mapgenerator
 
 
 class Tile(sprite.Sprite):
@@ -105,39 +106,30 @@ class Game:
         def getTile(x, y):
             return sheet.image_at((x * tileSize, y * tileSize, tileSize, tileSize))
 
-        tileGrass = getTile(0, 2)
-        tileVerticle = getTile(0, 0)
-        tileIntersect = getTile(9, 0)
-        tileHorizontal = getTile(0, 1)
-        tileWater1 = getTile(3, 4)
-        tileWater2 = getTile(4, 4)
-        tileWater3 = getTile(3, 5)
-        tileWater4 = getTile(4, 5)
-        tileMap = [
+        loadedTiles = {}
+
+        tileMapIds = [
+            [1, 1, 1, 1, 0, 0, 0],
             [0, 0, 0, 1, 0, 0, 0],
-            [0, 0, 0, 1, 0, 0, 0],
-            [0, 0, 0, 1, 0, 0, 0],
-            [2, 2, 2, 3, 2, 2, 2],
-            [0, 0, 0, 1, 0, 4, 5],
-            [0, 0, 0, 1, 0, 6, 7],
-            [0, 0, 0, 1, 0, 0, 0],
+            [0, 1, 0, 1, 0, 0, 0],
+            [0, 1, 1, 1, 1, 1, 1],
+            [0, 0, 0, 1, 0, 0, 1],
+            [0, 0, 0, 1, 1, 1, 1],
+            [0, 0, 0, 0, 0, 0, 0],
         ]
-        tileSize = tileGrass.get_size()
-        tileDict = {
-            0: tileGrass,
-            1: tileVerticle,
-            2: tileHorizontal,
-            3: tileIntersect,
-            4: tileWater1,
-            5: tileWater2,
-            6: tileWater3,
-            7: tileWater4,
-        }
-        for y in range(len(tileMap)):
-            for x in range(len(tileMap[y])):
-                img = tileDict.get(tileMap[y][x])
-                pos = (x * tileSize[0], y * tileSize[1])
-                self.tile_sprites.add(Tile.build(img, pos, self.tile_sprites))
+        tileMap = mapgenerator.generate(tileMapIds)
+        spriteids = tileMap.spriteIds
+        for y, row in enumerate(spriteids):
+            for x, spritepos in enumerate(row):
+                (sx, sy) = spritepos
+                img: Surface
+                if spritepos in loadedTiles:
+                    img = loadedTiles[spritepos]
+                else:
+                    img = getTile(sx, sy)
+                    loadedTiles[spritepos] = img
+                tilePos = (x * tileSize, y * tileSize)
+                self.tile_sprites.add(Tile.build(img, tilePos, self.tile_sprites))
 
     def gameLoop(self):
         while self.running:
