@@ -1,9 +1,8 @@
 from dataclasses import dataclass
-from typing import Dict, List
+from typing import List
 from .pathfinding import findEntityPath, Point, PointGraph
 
 import math
-import astar
 
 
 class Entity:
