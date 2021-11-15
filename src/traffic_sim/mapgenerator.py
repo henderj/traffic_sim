@@ -93,6 +93,91 @@ dlr = (5, 3)
 bitmask = [sand, u, l, ul, r, ur, lr, ulr, d, ud, dl, udl, dr, udr, dlr, udlr]
 
 
+def northCheck(point: Point, graph: PointGraph):
+    if point in graph.edges:
+        neighbors = graph.neighbors(point)
+        for n in neighbors:
+            (x, y) = n
+            if x == point.x and y < point.y:
+                return True
+        return False
+
+    for node in graph.edges:
+        (x, y) = node
+        if x == point.x and y < point.y and southCheck(node, graph):
+            for n in graph.neighbors(node):
+                (nx, ny) = n
+                if nx == point.x and ny > point.y:
+                    return True
+    return False
+
+
+def eastCheck(point: Point, graph: PointGraph):
+    if point in graph.edges:
+        neighbors = graph.neighbors(point)
+        for n in neighbors:
+            (x, y) = n
+            if x > point.x and y == point.y:
+                return True
+        return False
+
+    for node in graph.edges:
+        (x, y) = node
+        if x > point.x and y == point.y and westCheck(node, graph):
+            for n in graph.neighbors(node):
+                (nx, ny) = n
+                if nx < point.x and ny == point.y:
+                    return True
+    return False
+
+
+def southCheck(point: Point, graph: PointGraph):
+    if point in graph.edges:
+        neighbors = graph.neighbors(point)
+        for n in neighbors:
+            (x, y) = n
+            if x == point.x and y > point.y:
+                return True
+        return False
+
+    for node in graph.edges:
+        (x, y) = node
+        if x == point.x and y > point.y and northCheck(node, graph):
+            for n in graph.neighbors(node):
+                (nx, ny) = n
+                if nx == point.x and ny < point.y:
+                    return True
+    return False
+
+
+def westCheck(point: Point, graph: PointGraph):
+    if point in graph.edges:
+        neighbors = graph.neighbors(point)
+        for n in neighbors:
+            (x, y) = n
+            if x < point.x and y == point.y:
+                return True
+        return False
+
+    for node in graph.edges:
+        (x, y) = node
+        if x < point.x and y == point.y and eastCheck(node, graph):
+            for n in graph.neighbors(node):
+                (nx, ny) = n
+                if nx > point.x and ny == point.y:
+                    return True
+    return False
+
+
+def getBitmaskValue(point: Point, graph: PointGraph):
+    return (
+        1 * northCheck(point, graph)
+        + 2 * westCheck(point, graph)
+        + 4 * eastCheck(point, graph)
+        + 8 * southCheck(point, graph)
+    )
+
+
 def generateFromGraph(graph: PointGraph):
     pass
 

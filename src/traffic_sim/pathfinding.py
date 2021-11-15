@@ -13,7 +13,13 @@ class Graph(Protocol):
 
 class PointGraph:
     def __init__(self, edges: Dict[Point, List[Point]] = {}) -> None:
-        self.edges = edges
+        self.edges: Dict[Point, List[Point]] = {}
+        for e in edges:
+            neighbors = []
+            for n in edges[e]:
+                neighbors.append(Point(*n))
+            point = Point(*e)
+            self.edges[point] = neighbors
 
     def neighbors(self, pos: Point) -> List[Point]:
         return self.edges[pos]
