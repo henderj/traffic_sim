@@ -7,7 +7,7 @@ from pygame.surface import Surface
 from pygame.time import Clock
 
 from traffic_sim.traffic_sim import SimData, TrafficSim, getInitialData
-from traffic_sim.pathfinding import Point
+from traffic_sim.pathfinding import Point, PointGraph
 from utils.spritesheet import SpriteSheet
 import traffic_sim.mapgenerator as mapgenerator
 
@@ -108,16 +108,20 @@ class Game:
 
         loadedTiles = {}
 
-        tileMapIds = [
-            [1, 1, 1, 1, 0, 0, 0],
-            [0, 0, 0, 1, 0, 0, 0],
-            [0, 1, 0, 1, 0, 0, 0],
-            [0, 1, 1, 1, 1, 1, 1],
-            [0, 0, 0, 1, 0, 0, 1],
-            [0, 0, 0, 1, 1, 1, 1],
-            [0, 0, 0, 0, 0, 0, 0],
-        ]
-        tileMap = mapgenerator.generate(tileMapIds)
+        nodes = {
+            (0, 1): [(1, 1)],
+            (0, 4): [(3, 4)],
+            (1, 0): [(1, 1), (4, 0)],
+            (1, 1): [(0, 1), (1, 0), (1, 3), (3, 1)],
+            (1, 3): [(1, 1), (3, 3)],
+            (3, 1): [(1, 1), (3, 3)],
+            (3, 3): [(1, 3), (3, 1), (3, 4), (4, 3)],
+            (3, 4): [(3, 3), (0, 4)],
+            (4, 0): [(1, 0), (4, 3)],
+            (4, 3): [(3, 3), (4, 0)],
+        }
+        graph = PointGraph(nodes)
+        tileMap = mapgenerator.generateFromGraph(graph, (7, 7))
         spriteids = tileMap.spriteIds
         for y, row in enumerate(spriteids):
             for x, spritepos in enumerate(row):

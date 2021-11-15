@@ -90,7 +90,7 @@ udl = (5, 2)
 ulr = (4, 3)
 dlr = (5, 3)
 
-bitmask = [sand, u, l, ul, r, ur, lr, ulr, d, ud, dl, udl, dr, udr, dlr, udlr]
+bitmask = [grass, u, l, ul, r, ur, lr, ulr, d, ud, dl, udl, dr, udr, dlr, udlr]
 
 
 def northCheck(point: Point, graph: PointGraph):
@@ -178,8 +178,17 @@ def getBitmaskValue(point: Point, graph: PointGraph):
     )
 
 
-def generateFromGraph(graph: PointGraph):
-    pass
+def generateFromGraph(graph: PointGraph, mapSize: Point) -> TileMap:
+    (w, h) = mapSize
+    spriteIds = []
+
+    for y in range(h):
+        row = []
+        for x in range(w):
+            row.append(bitmask[getBitmaskValue(Point(x, y), graph)])
+        spriteIds.append(row)
+
+    return TileMap(spriteIds)
 
 
 def generate(ids: List[List[int]]):

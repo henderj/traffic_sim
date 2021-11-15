@@ -43,25 +43,17 @@ class Test_TestMapGenerator(unittest.TestCase):
         self.mapsize = (5, 5)
 
     def test_generate_1(self):
-        ids = [
-            [0, 0, 0, 1, 0, 0, 0],
-            [0, 0, 0, 1, 0, 0, 0],
-            [0, 0, 0, 1, 0, 0, 0],
-            [1, 1, 1, 1, 1, 1, 1],
-            [0, 0, 0, 1, 0, 0, 0],
-            [0, 0, 0, 1, 0, 0, 0],
-            [0, 0, 0, 1, 0, 0, 0],
-        ]
+
         expectedSpriteIds = [
-            [n, dr, lr, lr, lr, dl],
+            [n, dr, lr, lr, dl],
             [r, udlr, lr, dl, ud],
             [n, ud, n, ud, ud],
             [n, ur, lr, udlr, ul],
-            [n, n, n, u, n],
+            [r, lr, lr, ul, n],
         ]
 
-        actualSpriteIds = mapgen.generate(ids).spriteIds
-        # self.assertListEqual(expectedSpriteIds, actualSpriteIds)
+        actualSpriteIds = mapgen.generateFromGraph(self.graph, self.mapsize).spriteIds
+        self.assertListEqual(expectedSpriteIds, actualSpriteIds)
 
     def test_northCheck(self):
         point1 = Point(1, 1)
@@ -128,7 +120,7 @@ class Test_TestMapGenerator(unittest.TestCase):
     def test_westCheck(self):
         point1 = Point(1, 1)
         point2 = Point(3, 1)
-        point3 = Point(3, 4)
+        point3 = Point(0, 4)
         self.assertTrue(westCheck(point1, self.graph))
         self.assertTrue(westCheck(point2, self.graph))
         self.assertFalse(westCheck(point3, self.graph))
@@ -150,8 +142,8 @@ class Test_TestMapGenerator(unittest.TestCase):
         expected1 = 15
         point2 = Point(3, 1)
         expected2 = 10
-        point3 = Point(3, 4)
-        expected3 = 1
+        point3 = Point(0, 4)
+        expected3 = 4
         self.assertEqual(getBitmaskValue(point1, self.graph), expected1)
         self.assertEqual(getBitmaskValue(point2, self.graph), expected2)
         self.assertEqual(getBitmaskValue(point3, self.graph), expected3)

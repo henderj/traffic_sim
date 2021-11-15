@@ -47,7 +47,7 @@ class Entity:
 
         if not self.hasPath():
             start = self.tilePos()
-            end = Point(3, 0)
+            end = Point(0, 4)
             self.path = findPath(start, end)
 
         if self.progress_to_next_node >= 1:
@@ -74,16 +74,21 @@ class SimData:
 
 def getInitialData():
     entities: List[Entity] = []
-    entities.append(Entity(pos=Point(0, 3), active=True))
+    entities.append(Entity(pos=Point(0, 1), active=True))
 
-    nav_network = PointGraph()
-    nav_network.edges = {
-        Point(3, 0): [Point(3, 3)],
-        Point(0, 3): [Point(3, 3)],
-        Point(3, 3): [Point(3, 0), Point(0, 3), Point(6, 3), Point(3, 6)],
-        Point(6, 3): [Point(3, 3)],
-        Point(3, 6): [Point(3, 3)],
+    nodes = {
+        (0, 1): [(1, 1)],
+        (0, 4): [(3, 4)],
+        (1, 0): [(1, 1), (4, 0)],
+        (1, 1): [(0, 1), (1, 0), (1, 3), (3, 1)],
+        (1, 3): [(1, 1), (3, 3)],
+        (3, 1): [(1, 1), (3, 3)],
+        (3, 3): [(1, 3), (3, 1), (3, 4), (4, 3)],
+        (3, 4): [(3, 3), (0, 4)],
+        (4, 0): [(1, 0), (4, 3)],
+        (4, 3): [(3, 3), (4, 0)],
     }
+    nav_network = PointGraph(nodes)
     return SimData(nav_network, entities, [], {})
 
 
