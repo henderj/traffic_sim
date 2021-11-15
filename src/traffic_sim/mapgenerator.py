@@ -1,5 +1,5 @@
 from typing import List, Iterator, Tuple
-from .pathfinding import Point
+from .pathfinding import Point, PointGraph
 from dataclasses import dataclass
 
 sampleIds = [
@@ -73,17 +73,28 @@ def pointToListId(ids: List[List[int]], pos: Point) -> int:
 
 
 grass = (0, 2)
-down = (0, 0)
-right = (0, 1)
-cross = (9, 0)
-uend = (8, 2)
-dend = (9, 2)
-lend = (8, 3)
-rend = (9, 3)
-urturn = (1, 0)
-ulturn = (2, 0)
-drturn = (1, 1)
-dlturn = (2, 1)
+sand = (1, 2)
+ud = (0, 0)
+lr = (0, 1)
+udlr = (9, 0)
+d = (8, 2)
+u = (9, 2)
+r = (8, 3)
+l = (9, 3)
+dr = (1, 0)
+dl = (2, 0)
+ur = (1, 1)
+ul = (2, 1)
+udr = (4, 2)
+udl = (5, 2)
+ulr = (4, 3)
+dlr = (5, 3)
+
+bitmask = [sand, u, l, ul, r, ur, lr, ulr, d, ud, dl, udl, dr, udr, dlr, udlr]
+
+
+def generateFromGraph(graph: PointGraph):
+    pass
 
 
 def generate(ids: List[List[int]]):
@@ -112,36 +123,36 @@ def get_row_spriteids(graph: TileGraph, y: int, ids_row: List[int]):
                 and neighbors.right == 1
                 and neighbors.left == 1
             ):
-                sprites_row.append(cross)
+                sprites_row.append(udlr)
                 continue
             if neighbors.right == 1 and neighbors.left == 1:
-                sprites_row.append(right)
+                sprites_row.append(lr)
                 continue
             if neighbors.up == 1 and neighbors.down == 1:
-                sprites_row.append(down)
+                sprites_row.append(ud)
                 continue
             if neighbors.up == 1 and neighbors.right == 1:
-                sprites_row.append(drturn)
+                sprites_row.append(ur)
                 continue
             if neighbors.up == 1 and neighbors.left == 1:
-                sprites_row.append(dlturn)
+                sprites_row.append(ul)
                 continue
             if neighbors.down == 1 and neighbors.right == 1:
-                sprites_row.append(urturn)
+                sprites_row.append(dr)
                 continue
             if neighbors.down == 1 and neighbors.left == 1:
-                sprites_row.append(ulturn)
+                sprites_row.append(dl)
                 continue
             if neighbors.down == 1:
-                sprites_row.append(uend)
+                sprites_row.append(d)
                 continue
             if neighbors.up == 1:
-                sprites_row.append(dend)
+                sprites_row.append(u)
                 continue
             if neighbors.right == 1:
-                sprites_row.append(lend)
+                sprites_row.append(r)
                 continue
             if neighbors.left == 1:
-                sprites_row.append(rend)
+                sprites_row.append(l)
                 continue
     return sprites_row
